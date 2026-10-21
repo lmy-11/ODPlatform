@@ -53,8 +53,10 @@ dev = [
 # =============================================================================
 # Entry-point Scripts (PEP 621 标准字段, 与 backend 无关)
 # =============================================================================
+
 [project.scripts]
 odp-init = "od_platform.cli.init_project:initialize_project"
+odp-reset = "od_platform.cli.reset_project:main"
 
 
 # =============================================================================

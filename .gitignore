@@ -79,3 +79,4 @@ temp/
 *.pkl
 *.h5
 *.npz
+.odp-meta/

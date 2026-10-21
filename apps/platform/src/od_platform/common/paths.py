@@ -7,6 +7,8 @@
 #              - 使用 marker file 模式定位 ROOT_DIR(workspace 根)
 #              - 引入 APP_DIR 概念,把【共享资产】和【端私有资产】分开
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import List, Tuple
 
@@ -70,9 +72,6 @@ PRETRAINED_MODELS_DIR: Path = MODELS_DIR / "pretrained"  # 下载的预训练权
 TRAINED_MODELS_DIR: Path = MODELS_DIR / "trained"        # 训练产出、长期保留的权重(产物)
 
 # 数据集子目录
-# 设计依据见 D0 决定 5:原始(只读)与派生(可再生)分家。
-# train/val/test 划分属于派生产物,会在数据处理那天用固定种子一次性
-# 冻结进 processed/ 内;init 阶段只建 raw / processed 两个空目录。
 RAW_DATA_DIR: Path = DATA_DIR / "raw"              # 原始数据:只读,绝不就地改
 PROCESSED_DATA_DIR: Path = DATA_DIR / "processed"  # 派生数据集:含冻结后的 train/val/test
 
@@ -98,17 +97,18 @@ SCRIPTS_DIR: Path = ROOT_DIR / "scripts"
 
 
 # ============================================================
+# 【工具元数据目录】(D2 新增)
+# ============================================================
+META_DIR: Path = ROOT_DIR / ".odp-meta"
+META_LOGGING_DIR: Path = META_DIR / "logs"
+
+
+# ============================================================
 # 对外暴露的"要初始化的目录列表"
 # ============================================================
 def get_dirs_to_initialize() -> List[Path]:
     """
     返回项目启动时需要确保存在的所有目录列表。
-
-    这是 init_project.py 的【唯一数据源】——
-    paths.py 决定要哪些目录,init_project 只负责创建。
-
-    Returns:
-        所有需要初始化的目录路径列表
     """
     return [
         # 共享资产
@@ -126,9 +126,69 @@ def get_dirs_to_initialize() -> List[Path]:
         # 工程基础设施
         SCRIPTS_DIR,
         DOCS_DIR,
+        # 工具元数据 (D2 新增)
+        META_LOGGING_DIR,
     ]
 
 
+# ============================================================
+# 对外暴露的"要重置的目录列表" (D2 新增)
+# ============================================================
+def get_dirs_to_reset() -> List[Path]:
+    """
+    返回 reset_project 可以安全清理的目录列表。
+    """
+    return [
+        # 划分后的派生数据集
+        PROCESSED_DATA_DIR,
+        # 训练运行产物
+        RUNS_DIR,
+        # 训练产出的权重
+        TRAINED_MODELS_DIR,
+        # 端私有运行时日志
+        LOGGING_DIR,
+    ]
+
+
+# ============================================================
+# 绝对保护目录 (D2 新增)
+# ============================================================
+PROTECTED_DIRS: Tuple[Path, ...] = (
+    ROOT_DIR,
+    ROOT_DIR / "apps",
+    ROOT_DIR / "packages",
+    APP_DIR,
+    APP_DIR / "src",
+    SCRIPTS_DIR,
+    DOCS_DIR,
+    UNIT_TEST_DIR,
+    CONFIGS_DIR,
+    ROOT_DIR / ".git",
+    ROOT_DIR / ".odp-workspace",
+    META_DIR,
+    META_LOGGING_DIR,
+)
+
+
+def is_protected(path: Path) -> bool:
+    path = path.resolve(strict=False)
+    for protected in PROTECTED_DIRS:
+        protected_resolved = protected.resolve(strict=False)
+        if path == protected_resolved:
+            return True
+        
+        # 兼容 Python 3.8 及以下的写法
+        try:
+            protected_resolved.relative_to(path)
+            return True
+        except ValueError:
+            pass
+            
+    return False
+
+# ============================================================
+# 自测打印 (保留 D1 原本的测试代码)
+# ============================================================
 if __name__ == "__main__":
     print(f"ROOT_DIR (workspace) = {ROOT_DIR}")
     print(f"APP_DIR  (platform)  = {APP_DIR}")
@@ -139,7 +199,14 @@ if __name__ == "__main__":
     print(f"\n端私有资产:")
     print(f"  CONFIGS_DIR = {CONFIGS_DIR.relative_to(ROOT_DIR)}")
     print(f"  LOGGING_DIR = {LOGGING_DIR.relative_to(ROOT_DIR)}")
+    
+    print(f"\n元数据资产:")
+    print(f"  META_LOGGING_DIR = {META_LOGGING_DIR.relative_to(ROOT_DIR)}")
 
     print(f"\n要初始化的目录共 {len(get_dirs_to_initialize())} 个:")
     for d in get_dirs_to_initialize():
+        print(f"  - {d.relative_to(ROOT_DIR)}")
+        
+    print(f"\n要重置的目录共 {len(get_dirs_to_reset())} 个:")
+    for d in get_dirs_to_reset():
         print(f"  - {d.relative_to(ROOT_DIR)}")
