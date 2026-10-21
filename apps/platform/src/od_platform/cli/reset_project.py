@@ -66,13 +66,8 @@ def _format_size(bytes_size: int) -> str:
     return f"{bytes_size} B"
 
 
-def _on_rm_error(func, path, exc):
-    """rmtree 错误回调——处理 Windows 只读文件场景。
-
-    Windows 上某些被 git checkout 出来的文件会被标记只读,
-    shutil.rmtree 直接 PermissionError。改成可写后重试。
-    Linux 上 chmod + retry 也是无害的,所以可以跨平台用。
-    """
+def _on_rm_error(func, path, exc_info):
+    """rmtree 错误回调——兼容老版本 Python 的 onerror"""
     try:
         os.chmod(path, stat.S_IWRITE)
         func(path)
@@ -221,7 +216,7 @@ def _delete_one(path: Path, idx: int, total: int, file_count: int, size: int) ->
         logger.info(f"[{idx}/{total}] 删除 {rel} ({size_str}, {file_count} 个文件)")
 
     try:
-        shutil.rmtree(path, onexc=_on_rm_error)
+        shutil.rmtree(path, onerror=_on_rm_error)
         logger.info(f"[{idx}/{total}] ✅ 已删除: {rel}")
         return None
     except OSError as e:
