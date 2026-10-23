@@ -53,7 +53,7 @@ class PipelineConfig:
 
     def build_camera_config(self):
         """延迟构造 CameraConfig —— 不是摄像头源时 create_frame_source 会忽略."""
-        from odp_platform.frame_source import CameraConfig
+        #from odp_platform.frame_source import CameraConfig   由于当前项目缺少 frame_source 模块，这里直接返回原始字典进行测试
         if not self.camera_raw:
             return None
         try:
