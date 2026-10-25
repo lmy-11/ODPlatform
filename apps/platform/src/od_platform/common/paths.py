@@ -69,7 +69,8 @@ RUNS_DIR: Path = ROOT_DIR / "runs"
 
 # 模型子目录
 PRETRAINED_MODELS_DIR: Path = MODELS_DIR / "pretrained"  # 下载的预训练权重(输入)
-TRAINED_MODELS_DIR: Path = MODELS_DIR / "trained"        # 训练产出、长期保留的权重(产物)
+TRAINED_MODELS_DIR: Path = MODELS_DIR / "trained" 
+CHECKPOINTS_DIR: Path = MODELS_DIR / "checkpoints"   # 加上这一行       # 训练产出、长期保留的权重(产物)
 
 # 数据集子目录
 RAW_DATA_DIR: Path = DATA_DIR / "raw"              # 原始数据:只读,绝不就地改
@@ -150,7 +151,6 @@ def get_dirs_to_reset() -> List[Path]:
         LOGGING_DIR,
         DATASET_CONFIGS_DIR,
     ]
-
 
 # ============================================================
 # 绝对保护目录 (D2 新增)
