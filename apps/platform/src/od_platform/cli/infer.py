@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-"""ODPlatform odp-infer CLI 入口.
+"""ODPlatform od-infer CLI 入口.
 
-职责 (跟 odp-train 完全同构):
+职责 (跟 od-train 完全同构):
   1. 装 logging handler (D2 get_logger, console+file 两份)
   2. argparse → cli_args dict
   3. 调 infer_yolo() 跑
@@ -17,13 +17,13 @@ import logging
 import sys
 from pathlib import Path
 
-from odp_platform.common.logging_utils import get_logger
-from odp_platform.inference import infer_yolo
+from od_platform.common.logging_utils import get_logger
+from od_platform.inference import infer_yolo
 
 
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="odp-infer",
+        prog="od-infer",
         description="ODPlatform YOLO 推理 CLI",
     )
     # ---- 输入输出 ----

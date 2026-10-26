@@ -53,7 +53,7 @@ class PipelineConfig:
 
     def build_camera_config(self):
         """延迟构造 CameraConfig —— 不是摄像头源时 create_frame_source 会忽略."""
-        from odp_platform.frame_source import CameraConfig   
+        from od_platform.frame_source import CameraConfig   
         if not self.camera_raw:
             return None
         try:
@@ -63,7 +63,7 @@ class PipelineConfig:
             return None
 
     def to_audit(self) -> dict[str, Any]:
-        """给 odp_audit.json 用的纯字典快照."""
+        """给 od_audit.json 用的纯字典快照."""
         return {
             "viz_enabled": self.viz_enabled,
             "use_label_mapping": self.use_label_mapping,
